@@ -66,60 +66,46 @@ class HealthStore {
     }
     
     func readYesterdaysWater () -> Double {
-        //rest of the code will be here
         var waterAmount = 0.0
-        let readData = Set([
-            HKObjectType.quantityType(forIdentifier: .dietaryWater)!
-        ])
-        let calendar = NSCalendar.current
-                
-        var anchorComponents = calendar.dateComponents([.day, .month, .year, .weekday], from: NSDate() as Date)
-                
-        anchorComponents.day! -= 1
-        guard let anchorDate = Calendar.current.date(from: anchorComponents) else {
-            fatalError("*** unable to create a valid date from the given components ***")
+        guard let waterType = HKSampleType.quantityType(forIdentifier: .dietaryWater) else {
+            return 0.0
         }
-        guard let quantityType = HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.dietaryWater) else {
-                fatalError("*** Unable to create a water count type ***")
-        }
-        let interval = NSDateComponents()
-        let query = HKStatisticsCollectionQuery(quantityType: quantityType, quantitySamplePredicate: nil, options: .mostRecent, anchorDate: anchorDate, intervalComponents: interval as DateComponents)
-                
-        query.initialResultsHandler = {
-            query, results, error in
-                    
-            guard let statsCollection = results else {
-                fatalError("*** An error occurred while calculating the statistics: \(String(describing: error?.localizedDescription)) ***")
-                        
+            
+        let predicate = HKQuery.predicateForSamples(withStart: Date.yesterdayMorning, end: Date.yesterdayEvening, options: .strictEndDate)
+            
+        let waterQuery = HKSampleQuery(sampleType: waterType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
+            guard error == nil, let quantitySamples = samples as? [HKQuantitySample] else {
+                print("Something went wrong: \(error.debugDescription)")
+                return
             }
-            statsCollection.enumerateStatistics(from: Date.yesterday, to: Date.tomorrow) { statistics, stop in
-                if let quantity = statistics.averageQuantity() {
-                    let date = statistics.startDate
-                    //for: E.g. for steps it's HKUnit.count()
-                    let value = quantity.doubleValue(for: HKUnit(from: "fl_oz_us"))
-                    print("done")
-                    print(value)
-                    print(date)
-                    waterAmount = value
-                }
+                                              
+            let total = quantitySamples.reduce(0.0) {
+                $0 + $1.quantity.doubleValue(for: HKUnit.literUnit(with: .milli))
+                
+            }
+            
+            print("total water: \(total)")
+            DispatchQueue.main.async {
+                waterAmount = total
             }
         }
+        HKHealthStore().execute(waterQuery)
         return waterAmount
     }
 }
 
 extension Date {
-    static var yesterday: Date {
-        return Date().dayBefore
+    static var yesterdayMorning: Date {
+        return Date().startOfDay
     }
-    static var tomorrow:  Date {
-        return Date().dayAfter
+    static var yesterdayEvening:  Date {
+        return Date().endOfDay
     }
-    var dayBefore: Date
+    var startOfDay: Date
     {
-        return Calendar.current.date(byAdding: .day, value: -1, to: midnight)!
+        return Calendar.current.date(byAdding: .day, value: -1, to: morning)!
     }
-    var dayAfter: Date
+    var endOfDay: Date
     {
         return Calendar.current.date(byAdding: .day, value: -1, to: midnight)!
     }
@@ -138,6 +124,6 @@ extension Date {
     }
     var isLastDayOfMonth: Bool
     {
-        return dayAfter.month != month
+        return endOfDay.month != month
     }
 }

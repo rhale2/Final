@@ -529,10 +529,10 @@
             </objects>
             <point key="canvasLocation" x="1541" y="-633"/>
         </scene>
-        <!--My Tab Bar Controller-->
+        <!--Tab Bar View Controller-->
         <scene sceneID="Q3Z-CX-eg0">
             <objects>
-                <tabBarController automaticallyAdjustsScrollViewInsets="NO" id="9JP-YA-xod" customClass="MyTabBarController" customModule="FinalProject" customModuleProvider="target" sceneMemberID="viewController">
+                <tabBarController automaticallyAdjustsScrollViewInsets="NO" id="9JP-YA-xod" customClass="TabBarViewController" customModule="FinalProject" customModuleProvider="target" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationItem key="navigationItem" id="ZMa-vD-hRm"/>
                     <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="HHi-ty-8kV">

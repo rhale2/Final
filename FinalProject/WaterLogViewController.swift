@@ -17,6 +17,8 @@ class WaterLogViewController: UIViewController {
     var setting = [SettingsInfo]()
     
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+        
+    @IBOutlet var tabBarConroller: UITabBarController!
     
     @IBOutlet var hydrationLabelLabel: UILabel!
     
@@ -35,23 +37,13 @@ class WaterLogViewController: UIViewController {
             }
         }
     }
-    
-    override func viewDidDisappear (_ animated: Bool) {
-        
-        let documentsDirectoryURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        print(documentsDirectoryURL)
-        sendInfoToSetting()
-        sendWaterAmount()
-    }
-    
     override func viewDidLoad () {
         super.viewDidLoad()
+        healthStore = HealthStore()
         let isInfoShown = UserDefaults.standard.string(forKey: "Info")
         if (isInfoShown == nil || isInfoShown == "") {
             UserDefaults.standard.setValue("ShownInfo", forKey: "Info")
             getAlerts()
-            healthStore = HealthStore()
-            
             if let healthStore = healthStore {
                 healthStore.requestCaffeineAuthorization { (success) in
                     
@@ -69,6 +61,28 @@ class WaterLogViewController: UIViewController {
         // Do any additional setup after loading the view.
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        var newSetting = SettingsInfo(context: self.context)
+        newSetting.name = Settings.getName()
+        newSetting.age = Settings.getAge().1
+        newSetting.height = Settings.getHeight().1
+        newSetting.weight = Settings.getWeight().1
+        setting.append(newSetting)
+        saveSettings()
+    }
+    
+    override func viewWillDisappear (_ animated: Bool) {
+        sendWaterAmount()
+        sendInfoToSetting()
+    }
+    
+    override func viewDidDisappear (_ animated: Bool) {
+        
+        let documentsDirectoryURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        print(documentsDirectoryURL)
+        
+    }
+
     
     func storeWater (hydrateDrinks: [HydratingDrinks]) {
         var waterAmount: Double = 0.0
@@ -93,17 +107,6 @@ class WaterLogViewController: UIViewController {
             let yesterday = healthstore.readYesterdaysWater()
             
         }
-    }
-      
-        
-    override func viewWillDisappear (_ animated: Bool) {
-        var newSetting = SettingsInfo(context: self.context)
-        newSetting.name = Settings.getName()
-        newSetting.age = Settings.getAge().1
-        newSetting.height = Settings.getHeight().1
-        newSetting.weight = Settings.getWeight().1
-        setting.append(newSetting)
-        saveSettings()
     }
    
     func getAlerts () {
