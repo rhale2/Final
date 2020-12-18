@@ -43,10 +43,12 @@ class WaterLogViewController: UIViewController {
         let isInfoShown = UserDefaults.standard.string(forKey: "Info")
         if (isInfoShown == nil || isInfoShown == "") {
             UserDefaults.standard.setValue("ShownInfo", forKey: "Info")
-            getAlerts()
+        
             if let healthStore = healthStore {
                 healthStore.requestCaffeineAuthorization { (success) in
-                    
+                    DispatchQueue.main.async {
+                        self.getAlerts()
+                    }
                 }
                 healthStore.requestWaterAuthorization { (success) in
                     
