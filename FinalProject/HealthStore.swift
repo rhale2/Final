@@ -65,10 +65,9 @@ class HealthStore {
         
     }
     
-    func readYesterdaysWater () -> Double {
-        var waterAmount = 0.0
+    func readYesterdaysWater () {
         guard let waterType = HKSampleType.quantityType(forIdentifier: .dietaryWater) else {
-            return 0.0
+            return
         }
             
         let predicate = HKQuery.predicateForSamples(withStart: Date.yesterdayMorning, end: Date.yesterdayEvening, options: .strictEndDate)
@@ -86,11 +85,10 @@ class HealthStore {
             
             print("total water: \(total)")
             DispatchQueue.main.async {
-                waterAmount = total
+                PreviousDayViewController.water = total
             }
         }
         HKHealthStore().execute(waterQuery)
-        return waterAmount
     }
 }
 

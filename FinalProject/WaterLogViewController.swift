@@ -69,6 +69,7 @@ class WaterLogViewController: UIViewController {
         newSetting.weight = Settings.getWeight().1
         setting.append(newSetting)
         saveSettings()
+        sendWaterAmount()
     }
     
     override func viewWillDisappear (_ animated: Bool) {
@@ -103,8 +104,7 @@ class WaterLogViewController: UIViewController {
     }
     
     func sendWaterAmount () {
-        if let healthstore = healthStore {
-            let yesterday = healthstore.readYesterdaysWater()
+        if let healthstore = healthStore { healthstore.readYesterdaysWater()
             
         }
     }
