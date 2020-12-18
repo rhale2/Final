@@ -34,7 +34,7 @@ class WaterLogViewController: UIViewController {
                 let waterLevel = setWaterLevel(alcDrinks: AddDrinkViewController.alcDrinks, hydrateDrinks: AddDrinkViewController.hydrateDrinks, dehydrateDrinks: AddDrinkViewController.dehydrateDrinks)
                 changeImage(waterLevel: waterLevel)
                 storeWater(hydrateDrinks: AddDrinkViewController.hydrateDrinks)
-                storeCaffiene(dehydratingDrinks: AddDrinkViewController.dehydrateDrinks)
+                //storeCaffiene(dehydratingDrinks: AddDrinkViewController.dehydrateDrinks)
             }
         }
     }
@@ -46,13 +46,13 @@ class WaterLogViewController: UIViewController {
             UserDefaults.standard.setValue("ShownInfo", forKey: "Info")
             getAlerts()
             if let hs = healthStore {
-                hs.requestCaffeineAuthorization { (success) in
+                //hs.requestCaffeineAuthorization { (success) in
                    
-                }
+                //}
                 hs.requestWaterAuthorization { (success) in
-                    DispatchQueue.main.async {
-                      self.getAlerts()
-                    }
+//                    DispatchQueue.main.async {
+//                      self.getAlerts()
+//                    }
                 }
             }
         }
@@ -77,7 +77,7 @@ class WaterLogViewController: UIViewController {
     
     override func viewWillDisappear (_ animated: Bool) {
         sendWaterAmount()
-        sendCaffieneAmount()
+        //sendCaffieneAmount()
         sendInfoToSetting()
     }
     
@@ -119,7 +119,7 @@ class WaterLogViewController: UIViewController {
     func sendInfoToSetting () {
         loadSettings()
         let set = setting[0]
-        SettingsViewController.setting = set
+        //SettingsViewController.setting = set
         
     }
     
