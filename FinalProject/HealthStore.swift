@@ -53,11 +53,25 @@ class HealthStore {
         
         let sample = HKQuantitySample(type: quantityType!, quantity: quantityAmount, start: today, end: today)
           let correlationType = HKObjectType.correlationType(forIdentifier: HKCorrelationTypeIdentifier.food)
-          // 4
           let waterCorrelationForWaterAmount = HKCorrelation(type: correlationType!, start: today, end: today, objects: [sample])
-          // Send water intake data to healthStore…aka ‘Health’ app
-          // 5
           self.healthStore?.save(waterCorrelationForWaterAmount, withCompletion: { (success, error) in
+            if (error != nil) {
+                NSLog("error occurred saving water data")
+            }
+          })
+        
+    }
+    
+    func addCaffiene (ounces: Double) {
+        let quantityType = HKQuantityType.quantityType(forIdentifier: .dietaryCaffeine)
+        let qualityUnit = HKUnit.gramUnit(with: .milli)
+        let quantityAmount = HKQuantity(unit: qualityUnit, doubleValue: ounces)
+        let today = Date()
+        
+        let sample = HKQuantitySample(type: quantityType!, quantity: quantityAmount, start: today, end: today)
+        let correlationType = HKObjectType.correlationType(forIdentifier: HKCorrelationTypeIdentifier.food)
+          let caffieneCorrelationForWaterAmount = HKCorrelation(type: correlationType!, start: today, end: today, objects: [sample])
+          self.healthStore?.save(caffieneCorrelationForWaterAmount, withCompletion: { (success, error) in
             if (error != nil) {
                 NSLog("error occurred saving water data")
             }
@@ -88,7 +102,38 @@ class HealthStore {
                 PreviousDayViewController.water = total
             }
         }
-        HKHealthStore().execute(waterQuery)
+        if let hs = healthStore {
+            hs.execute(waterQuery)
+        }
+    }
+    
+    func readYesterdaysCaffiene () {
+        guard let caffieneType = HKSampleType.quantityType(forIdentifier: .dietaryCaffeine) else {
+            return
+        }
+            
+        let predicate = HKQuery.predicateForSamples(withStart: Date.yesterdayMorning, end: Date.yesterdayEvening, options: .strictEndDate)
+            
+        let
+            caffieneQuery = HKSampleQuery(sampleType: caffieneType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
+            guard error == nil, let quantitySamples = samples as? [HKQuantitySample] else {
+                print("Something went wrong: \(error.debugDescription)")
+                return
+            }
+                                              
+            let total = quantitySamples.reduce(0.0) {
+                $0 + $1.quantity.doubleValue(for: HKUnit.gramUnit(with: .milli))
+                
+            }
+            
+            print("total water: \(total)")
+            DispatchQueue.main.async {
+                PreviousDayViewController.caffiene = total * 1000
+            }
+        }
+        if let hs = healthStore {
+            hs.execute(caffieneQuery)
+        }
     }
 }
 

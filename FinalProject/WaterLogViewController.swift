@@ -34,6 +34,7 @@ class WaterLogViewController: UIViewController {
                 let waterLevel = setWaterLevel(alcDrinks: AddDrinkViewController.alcDrinks, hydrateDrinks: AddDrinkViewController.hydrateDrinks, dehydrateDrinks: AddDrinkViewController.dehydrateDrinks)
                 changeImage(waterLevel: waterLevel)
                 storeWater(hydrateDrinks: AddDrinkViewController.hydrateDrinks)
+                storeCaffiene(dehydratingDrinks: AddDrinkViewController.dehydrateDrinks)
             }
         }
     }
@@ -46,12 +47,12 @@ class WaterLogViewController: UIViewController {
             getAlerts()
             if let hs = healthStore {
                 hs.requestCaffeineAuthorization { (success) in
+                   
+                }
+                hs.requestWaterAuthorization { (success) in
                     DispatchQueue.main.async {
                       self.getAlerts()
                     }
-                }
-                hs.requestWaterAuthorization { (success) in
-                    
                 }
             }
         }
@@ -76,6 +77,7 @@ class WaterLogViewController: UIViewController {
     
     override func viewWillDisappear (_ animated: Bool) {
         sendWaterAmount()
+        sendCaffieneAmount()
         sendInfoToSetting()
     }
     
@@ -84,6 +86,21 @@ class WaterLogViewController: UIViewController {
         let documentsDirectoryURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         print(documentsDirectoryURL)
         
+    }
+    
+    func storeCaffiene (dehydratingDrinks: [DehydratingDrinks])  {
+        var drinkTotal: Double =  Double(dehydratingDrinks.count)
+        var caffieneAmount: Double = 0.0
+        for caffiene in dehydratingDrinks {
+            caffieneAmount += caffiene.caffeinePercentage
+        }
+        
+        caffieneAmount = caffieneAmount / drinkTotal
+        caffieneAmount = (drinkTotal - (caffieneAmount * drinkTotal))
+        caffieneAmount = caffieneAmount * 0.001
+        if let hs = healthStore {
+            hs.addCaffiene(ounces: caffieneAmount)
+        }
     }
 
     
@@ -109,6 +126,12 @@ class WaterLogViewController: UIViewController {
     func sendWaterAmount () {
         if let hs = healthStore {
             hs.readYesterdaysWater()
+        }
+    }
+    
+    func sendCaffieneAmount () {
+        if let hs = healthStore {
+            hs.readYesterdaysCaffiene()
         }
     }
    

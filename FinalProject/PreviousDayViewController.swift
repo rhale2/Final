@@ -13,7 +13,7 @@ import HealthKit
 @available(iOS 13.0, *)
 class PreviousDayViewController: UIViewController {
     static var water: Double? = nil
-    
+    static var caffiene: Double? = nil
     
     @IBOutlet var waterCupImage: UIImageView!
     @IBOutlet var hydrationLevelLabel: UILabel!
