@@ -43,14 +43,14 @@ class WaterLogViewController: UIViewController {
         let isInfoShown = UserDefaults.standard.string(forKey: "Info")
         if (isInfoShown == nil || isInfoShown == "") {
             UserDefaults.standard.setValue("ShownInfo", forKey: "Info")
-        
-            if let healthStore = healthStore {
-                healthStore.requestCaffeineAuthorization { (success) in
+            getAlerts()
+            if let hs = healthStore {
+                hs.requestCaffeineAuthorization { (success) in
                     DispatchQueue.main.async {
-                        self.getAlerts()
+                      self.getAlerts()
                     }
                 }
-                healthStore.requestWaterAuthorization { (success) in
+                hs.requestWaterAuthorization { (success) in
                     
                 }
             }
@@ -93,21 +93,22 @@ class WaterLogViewController: UIViewController {
             if water.type == "Water" {
                 waterAmount += water.amount
             }
-            if let healthstore = healthStore {
-                healthstore.addWater(ounces: waterAmount)
+            if let hs = healthStore {
+                hs.addWater(ounces: waterAmount)
             }
         }
     }
     
     func sendInfoToSetting () {
+        loadSettings()
         let set = setting[0]
         SettingsViewController.setting = set
         
     }
     
     func sendWaterAmount () {
-        if let healthstore = healthStore { healthstore.readYesterdaysWater()
-            
+        if let hs = healthStore {
+            hs.readYesterdaysWater()
         }
     }
    
